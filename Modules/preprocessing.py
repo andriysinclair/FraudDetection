@@ -1,4 +1,6 @@
 import pandas as pd
+import json
+import pickle
 
 def missing_summary(df):
     """missing_summary 
@@ -31,5 +33,55 @@ def dollar_to_int(df):
     """    
     for col in df.columns:
         if str(df.loc[0,col]).startswith("$"):
-            df[col] = df[col].apply(lambda x:int(x[1:]))
+            df[col] = df[col].apply(   lambda x:int(float(x[1:])) if isinstance(x,str) and x.startswith("$") else x)
+
+
+
+
+def merge_dfs(transaction_data_df, cards_data_df, data_folder):
+    """merge_dfs 
+
+    Merges card data with transaction data and export to pickle in the data folder
+
+    Args:
+        transaction_data_df (pandas.DataFrame): Dataframe for transaction data
+        cards_data_df (pandas.DataFrame): Dataframe for card data
+        data_folder (str): Absolute path to data folder
+    """    
+
+    # Load in the fraud jsons
+    with open(data_folder + "/train_fraud_labels.json", "r") as file:
+        fraud_data = json.load(file)
+
+    # Function to add a new column to the data set using the JSON
+
+    # Making into a pandas series
+    fraud_data = pd.DataFrame(fraud_data)
+
+    #resetting index
+    fraud_data.reset_index(inplace=True)
+
+    # Renaming index to id for later merge
+    fraud_data.rename(columns={"index":"id"}, inplace=True)
+
+    # Changing id column to int type
+    fraud_data["id"] = fraud_data["id"].astype(int)
+
+    # Dropping client column in cards df as it is redunadant
+    cards_data_df = cards_data_df.drop(columns=["client_id"])
+
+    # Users data has no identifier to match with the transaction data
+    # Merging card data with transaction data
+    merged_df = transaction_data_df.merge(cards_data_df, how="inner", left_on="card_id", right_on="id",suffixes=("_T","_C"))
+
+    # Adding target column to merged df by merging on id_T and id
+    merged_df = merged_df.merge(fraud_data, how="inner", left_on="id_T", right_on="id",suffixes=("_T","_C"))
+
+    # Dropping id_C and id_T created from merge and equivalent to id (id of transaction)
+    merged_df = merged_df.drop(columns=["id_C", "id_T"])
+
+    # Saving merged_df to pickle
+    merged_df.to_pickle(data_folder + "/merged_data.pkl")
+
+
 
