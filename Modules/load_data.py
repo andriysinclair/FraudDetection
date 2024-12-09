@@ -10,7 +10,7 @@ from pathlib import Path
 dataset = "computingvictor/transactions-fraud-datasets"
 
 # Absolute path to data folder
-data_folder = Path(__file__).parent / "data"
+data_folder = Path(__file__).parent.parent / "data"
 
 def load_data(dataset=dataset, data_folder=data_folder):
 
@@ -19,3 +19,6 @@ def load_data(dataset=dataset, data_folder=data_folder):
 
     # Downloading dataset ...
     kaggle.api.dataset_download_files(dataset, path=data_folder, unzip=True)
+
+
+print(data_folder)
