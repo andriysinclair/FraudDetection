@@ -1,6 +1,8 @@
 import pandas as pd
 import json
 import pickle
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import FeatureUnion, Pipeline
 
 def missing_summary(df):
     """missing_summary 
@@ -22,6 +24,25 @@ def missing_summary(df):
     })
 
     return missing_summary
+
+def find_unique_values(df):
+    """find_unique_values 
+
+    Finds info about unique values in columns
+
+    Args:
+        df (pd.DataFrame): DataFrame of interest
+
+    Returns:
+        pd.DataFrame: DateFrame with information of unique values
+    """    
+
+    total_len = len(df)
+    columns = list(df.columns)
+    unique_values = [df[cols].nunique() for cols in df.columns]
+    unique_perc = [np.round(entry/total_len*100,2) for entry in unique_values]
+
+    return pd.DataFrame({"columns": columns, "unique_no": unique_values, "unique_%": unique_perc})
 
 def dollar_to_int(df):
     """dollar_to_int 
@@ -82,6 +103,11 @@ def merge_dfs(transaction_data_df, cards_data_df, data_folder):
 
     # Saving merged_df to pickle
     merged_df.to_pickle(data_folder + "/merged_data.pkl")
+
+
+
+
+
 
 
 

@@ -7,6 +7,8 @@ dependencies:
   - pip
   - pandas
   - matplotlib
+  - numpy
+  - scikit-learn
   - pip:
       - kaggle
       - ipykernel
