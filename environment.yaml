@@ -12,3 +12,4 @@ dependencies:
   - pip:
       - kaggle
       - ipykernel
+      - pre-commit

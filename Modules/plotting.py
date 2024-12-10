@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-class Plotter:
 
+class Plotter:
     def __init__(self, df):
         self.df = df
 
@@ -16,11 +16,13 @@ class Plotter:
         percentages = np.round(percentages, 2)
 
         # Combine into a DataFrame
-        frequencies_table = pd.DataFrame({
-            'Response': frequencies.index,
-            'Frequency': frequencies.values,
-            'Percentage': percentages.values
-        })
+        frequencies_table = pd.DataFrame(
+            {
+                "Response": frequencies.index,
+                "Frequency": frequencies.values,
+                "Percentage": percentages.values,
+            }
+        )
 
         display(frequencies_table)
 
@@ -29,14 +31,9 @@ class Plotter:
 
         # Create the correlation plot
         plt.figure(figsize=(8, 6))
-        plt.imshow(corr_matrix, cmap='coolwarm', interpolation='nearest')
+        plt.imshow(corr_matrix, cmap="coolwarm", interpolation="nearest")
         plt.colorbar()  # Add color bar for scale
         plt.xticks(range(len(corr_matrix.columns)), corr_matrix.columns, rotation=90)
         plt.yticks(range(len(corr_matrix.columns)), corr_matrix.columns)
-        plt.title('Correlation Matrix Heatmap')
+        plt.title("Correlation Matrix Heatmap")
         plt.show()
-
-
-
-
-    

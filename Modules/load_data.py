@@ -12,6 +12,7 @@ dataset = "computingvictor/transactions-fraud-datasets"
 # Absolute path to data folder
 data_folder = Path(__file__).parent.parent / "data"
 
+
 def load_data(dataset=dataset, data_folder=data_folder):
 
     # Automatically looks for the kaggle.json file and authenticates user
