@@ -126,17 +126,31 @@ class Target0_Reducer(BaseEstimator, TransformerMixin):
 
 class CustomTargetEncoder(BaseEstimator, TransformerMixin):
 
+    def __init__(self, target):
+        self.target_mapping = None
+        self.target = target
+
     def fit(self, X, y=None):
+        # Ensuring X has only width of 2 and has target as 2nd column
+        if X.shape[1] != 2 or X.columns[1] != self.target:
+            raise ValueError(
+                f"Input must have two columns in the order [column_to_target_transform, {self.target}]"
+            )
+
+        # Compute and store mapping
+        self.target_mapping = X.groupby(X.iloc[:, 0])[self.target].mean().to_dict()
         return self
 
     def transform(self, X):
-        """
-        Transforms {"Yes", "No"} in the target column to binary {1, 0}.
+        # Check if encoder has been fitted
+        if self.target_mapping is None:
+            raise ValueError("The encoder has not been fitted yet.")
 
-        Args:
-            X (pd.Series or pd.DataFrame): Input target data.
+        # Apply the stored mapping to the column.
+        X = X.copy()
+        X_transformed = X.iloc[:, 0].map(self.target_mapping).to_frame()
+        return X_transformed
 
-        Returns:
-            pd.Series: Binary transformed target column.
-        """
-        return X.map({"Yes": 1, "No": 0}).to_frame()
+    def fit_transform(self, X, y=None):
+        self.fit(X, y)
+        return self.transform(X)
