@@ -9,6 +9,8 @@ from sklearn.preprocessing import FunctionTransformer
 
 
 class TargetBinary(BaseEstimator, TransformerMixin):
+    def __init__(self, type):
+        self.type = type
 
     def fit(self, X, y=None):
         return self
@@ -23,7 +25,13 @@ class TargetBinary(BaseEstimator, TransformerMixin):
         Returns:
             pd.Series: Binary transformed target column.
         """
-        return X.map({"Yes": 1, "No": 0}).to_frame()
+        if self.type == "df":
+            X["target"] = X["target"].map({"yes": 1, "no": 0})
+            return X
+
+        if self.type == "column":
+            X = X.str.lower().map({"yes": 1, "no": 0}).to_frame()
+            return X
 
 
 class Date(BaseEstimator, TransformerMixin):
@@ -43,32 +51,6 @@ class Date(BaseEstimator, TransformerMixin):
         """
 
         return pd.to_datetime(X).to_frame()
-
-
-class DateComponentExtractor(BaseEstimator, TransformerMixin):
-    def __init__(self, component):
-        self.component = component
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        """
-        Extracts a specific component (e.g., hour, day of week) from a datetime column.
-        """
-        # Making X into datetime
-        X = pd.to_datetime(X)
-
-        if self.component == "hour":
-            return X.dt.hour.to_frame()
-        elif self.component == "dow":
-            return X.dt.day_name().to_frame()
-        elif self.component == "month":
-            return X.dt.month.to_frame()
-        elif self.component == "year":
-            return X.dt.year.to_frame()
-        else:
-            raise ValueError(f"Unsupported component: {self.component}")
 
 
 class Target0_Reducer(BaseEstimator, TransformerMixin):
@@ -154,3 +136,31 @@ class CustomTargetEncoder(BaseEstimator, TransformerMixin):
     def fit_transform(self, X, y=None):
         self.fit(X, y)
         return self.transform(X)
+
+
+class DollarToInt(BaseEstimator, TransformerMixin):
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X = X.apply(
+            lambda x: (
+                int(float(x[1:])) if isinstance(x, str) and x.startswith("$") else x
+            )
+        )
+
+        return X.to_frame()
+
+
+class TimeSeriesMapper:
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        # X must be a date time
+        X = pd.Series(X.iloc[:, 0])
+        date_values = list(X.sort_values().values)
+        date_ts_mapping = {date_value: i for i, date_value in enumerate(date_values)}
+        X = X.map(date_ts_mapping)
+        return X.to_frame()
