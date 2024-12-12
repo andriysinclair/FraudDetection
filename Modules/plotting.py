@@ -39,3 +39,28 @@ class Plotter:
         plt.xticks(rotation=90)  # Rotate x-ticks
         # plt.tight_layout()
         plt.show()
+
+    def bar_plot(self, feature_of_interest, top_n, target="is_fraud"):
+        key_values = (
+            self.df.groupby(feature_of_interest)[target]
+            .sum()
+            .sort_values(ascending=False)
+        )
+        x = key_values.index[:top_n]
+        y = key_values.values[:top_n]
+        # print(f"x: {x}")
+        # print(f"y {y}")
+
+        # Create bar plot
+        plt.figure(figsize=(12, 6))
+        plt.bar(x, y)
+        plt.title(f"Most fraudulent transactions by {feature_of_interest}")
+        plt.xlabel(f"{feature_of_interest}")
+        plt.ylabel("Count")
+        plt.xticks(rotation=90)  # Rotate x-ticks
+        # plt.tight_layout()
+        plt.show()
+
+    def line_plot(self, feature_of_interest, target="is_fraud"):
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.df[feature_of_interest], self.df[target])

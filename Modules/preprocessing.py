@@ -81,6 +81,10 @@ def merge_dfs(transaction_data_df, cards_data_df, data_folder):
     with open(data_folder + "/train_fraud_labels.json", "r") as file:
         fraud_data = json.load(file)
 
+    # Load in mcc codes
+    # with open(data_folder + "/mcc_codes.json", "r") as file:
+    #    mcc_data = json.load(file)
+
     # Function to add a new column to the data set using the JSON
 
     # Making into a pandas series
@@ -115,6 +119,9 @@ def merge_dfs(transaction_data_df, cards_data_df, data_folder):
 
     # Dropping id_C and id_T created from merge and equivalent to id (id of transaction)
     merged_df = merged_df.drop(columns=["id_C", "id_T"])
+
+    # Mapping mcc codes
+    # merged_df["mcc"] = merged_df["mcc"].map(mcc_data)
 
     # Saving merged_df to pickle
     merged_df.to_pickle(data_folder + "/merged_data.pkl")

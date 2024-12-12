@@ -96,13 +96,14 @@ general_transformation_pipeline = Pipeline(
         ("Fill_NA", fillna_transformer),  # Add the fillna step
         ("Add_target_copy", target_copy_transformer),
         (
-            "Make_date_to_time_series",
+            "Numerical_and_date_transformations",
             ColumnTransformer(
                 [
                     ("a", time_series_pipeline, "date"),
                     ("b", time_series_pipeline, "acct_open_date"),
                     ("t", time_series_pipeline, "expires"),
                     ("g", binary_pipeline, "has_chip"),
+                    ("z", binary_pipeline, "card_on_dark_web"),  # Added missing comma
                     ("r", numerical_pipeline, "amount"),
                     ("s", numerical_pipeline, "credit_limit"),
                 ],
@@ -141,7 +142,7 @@ remove_uncorr_features_pipeline = Pipeline(
 
 Pipeline_for_exploration = Pipeline(
     steps=[
-        ("general_transformation_pipeline", general_transformation_pipeline),
+        # ("general_transformation_pipeline", general_transformation_pipeline),
         (
             "Encoder",
             ColumnTransformer(
@@ -159,8 +160,8 @@ Pipeline_for_exploration = Pipeline(
                     ("o", target_encoder_pipeline, ["errors", "target"]),
                     ("p", target_encoder_pipeline, ["card_number", "target"]),
                     ("q", target_encoder_pipeline, ["cvv", "target"]),
-                    ("r", numerical_scaling_pipeline, "amount"),
-                    ("s", numerical_scaling_pipeline, "credit_limit"),
+                    ("r", numerical_scaling_pipeline, ["amount"]),
+                    ("s", numerical_scaling_pipeline, ["credit_limit"]),
                 ],
                 remainder="passthrough",
             ),
@@ -173,6 +174,7 @@ Pipeline_for_exploration = Pipeline(
 
 Pipeline1 = Pipeline(
     steps=[
+        # ("general_transformation_pipeline", general_transformation_pipeline),
         ("exploration_pipeline", Pipeline_for_exploration),  # Existing pipeline
         ("remove_uncorrelated_features", remove_uncorr_features_pipeline),  # New step
     ]
