@@ -6,8 +6,9 @@ import numpy as np
 class Plotter:
     def __init__(self, df):
         self.df = df
+        plt.style.use("ggplot")
 
-    def display_target(self, target):
+    def display_target(self, target="is_fraud"):
         # Calculating frequencies
         frequencies = self.df[target].value_counts()
 
@@ -26,14 +27,15 @@ class Plotter:
 
         display(frequencies_table)
 
-    def plot_correlations(self):
-        corr_matrix = self.df.corr()
+    def plot_correlations(self, target="is_fraud"):
+        corr_table = self.df.corr()[target].sort_values(ascending=False)
 
         # Create the correlation plot
-        plt.figure(figsize=(8, 6))
-        plt.imshow(corr_matrix, cmap="coolwarm", interpolation="nearest")
-        plt.colorbar()  # Add color bar for scale
-        plt.xticks(range(len(corr_matrix.columns)), corr_matrix.columns, rotation=90)
-        plt.yticks(range(len(corr_matrix.columns)), corr_matrix.columns)
-        plt.title("Correlation Matrix Heatmap")
+        plt.figure(figsize=(12, 6))
+        plt.bar(x=corr_table.index, height=corr_table.values)
+        plt.title("Correlation Plot")
+        plt.xlabel("Features")
+        plt.ylabel("Correlation")
+        plt.xticks(rotation=90)  # Rotate x-ticks
+        # plt.tight_layout()
         plt.show()

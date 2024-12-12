@@ -26,7 +26,7 @@ class TargetBinary(BaseEstimator, TransformerMixin):
             pd.Series: Binary transformed target column.
         """
         if self.type == "df":
-            X["target"] = X["target"].map({"yes": 1, "no": 0})
+            X["target"] = X["target"].str.lower().map({"yes": 1, "no": 0})
             return X
 
         if self.type == "column":
@@ -164,3 +164,37 @@ class TimeSeriesMapper:
         date_ts_mapping = {date_value: i for i, date_value in enumerate(date_values)}
         X = X.map(date_ts_mapping)
         return X.to_frame()
+
+
+class RemoveUncorrFeatures:
+    def __init__(self, p, target="is_fraud"):
+        self.mapping = None
+        self.p = p
+        self.target = target
+
+    def fit(self, X, y=None):
+
+        ## Function to remove features with less than X correlation
+        suitable_cols = X.corr()[self.target][
+            np.abs(X.corr()[self.target].values) > self.p
+        ]
+        suitable_cols = list(suitable_cols.index)
+
+        self.mapping = suitable_cols
+
+        return self
+
+    def transform(self, X, y=None):
+        # Check if encoder has been fitted
+        if self.mapping is None:
+            raise ValueError("The encoder has not been fitted yet.")
+
+        # Apply the stored mapping to the column.
+        X = X.copy()
+        X_transformed = X[self.mapping]
+
+        return X_transformed
+
+    def fit_transform(self, X, y=None):
+        self.fit(X, y)
+        return self.transform(X)
