@@ -53,6 +53,39 @@ class Date(BaseEstimator, TransformerMixin):
         return pd.to_datetime(X).to_frame()
 
 
+class DateDecomposer:
+    def __init__(self, time_element_to_extract, col_to_decomp):
+        self.time_element_to_extract = time_element_to_extract
+        self.col_to_decomp = col_to_decomp
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        if self.time_element_to_extract == "hour":
+            X[self.col_to_decomp + "_" + self.time_element_to_extract] = X[
+                self.col_to_decomp
+            ].dt.hour
+        elif self.time_element_to_extract == "dow":
+            X[self.col_to_decomp + "_" + self.time_element_to_extract] = X[
+                self.col_to_decomp
+            ].dt.weekday
+        elif self.time_element_to_extract == "month":
+            X[self.col_to_decomp + "_" + self.time_element_to_extract] = X[
+                self.col_to_decomp
+            ].dt.month
+        elif self.time_element_to_extract == "year":
+            X[self.col_to_decomp + "_" + self.time_element_to_extract] = X[
+                self.col_to_decomp
+            ].dt.year
+        else:
+            raise KeyError(
+                "time_element_to_extract must be one of: 'hour', 'dow', 'month' or 'year'"
+            )
+
+        return X
+
+
 class Target0_Reducer(BaseEstimator, TransformerMixin):
     def __init__(self, percentage):
         """
@@ -111,6 +144,7 @@ class CustomTargetEncoder(BaseEstimator, TransformerMixin):
     def __init__(self, target):
         self.target_mapping = None
         self.target = target
+        self.default_value = None
 
     def fit(self, X, y=None):
         # Ensuring X has only width of 2 and has target as 2nd column
@@ -121,6 +155,9 @@ class CustomTargetEncoder(BaseEstimator, TransformerMixin):
 
         # Compute and store mapping
         self.target_mapping = X.groupby(X.iloc[:, 0])[self.target].mean().to_dict()
+
+        # Store default value for future missing categories
+        self.default_value = X.iloc[:, 1].mean()
         return self
 
     def transform(self, X):
@@ -131,6 +168,9 @@ class CustomTargetEncoder(BaseEstimator, TransformerMixin):
         # Apply the stored mapping to the column.
         X = X.copy()
         X_transformed = X.iloc[:, 0].map(self.target_mapping).to_frame()
+
+        # For classes not present in the training set assign the global mean
+        X_transformed = X_transformed.fillna(self.default_value)
         return X_transformed
 
     def fit_transform(self, X, y=None):

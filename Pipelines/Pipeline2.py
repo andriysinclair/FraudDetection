@@ -1,6 +1,5 @@
 """
-Pipeline1 will be based on making time series from 0,...T of date features. Consequently this has little correlation
-with the target an ends up being removed
+Pipeline2 will decompose date features in hour, day, week, month, year..
 """
 
 # LIbraries
@@ -56,9 +55,7 @@ def copy_target_column(X):
 
 target_copy_transformer = FunctionTransformer(copy_target_column, validate=False)
 
-time_series_pipeline = Pipeline(
-    steps=[("Convert_to_dt", Date()), ("ts_mapping", TimeSeriesMapper())]
-)
+date_pipeline = Pipeline(steps=[("Convert_to_dt", Date())])
 
 # Function to rename columns
 
@@ -94,7 +91,7 @@ numerical_scaling_pipeline = Pipeline(
     ]
 )
 
-general_transformation_pipeline = Pipeline(
+general_transformation_pipeline2 = Pipeline(
     steps=[
         ("Return_reduced_df", Target0_Reducer(percentage=0.01)),
         ("Make_target_binary", TargetBinary(type="df")),
@@ -104,19 +101,55 @@ general_transformation_pipeline = Pipeline(
             "Numerical_and_date_transformations",
             ColumnTransformer(
                 [
-                    ("a", time_series_pipeline, "date"),
-                    ("b", time_series_pipeline, "acct_open_date"),
-                    ("t", time_series_pipeline, "expires"),
                     ("g", binary_pipeline, "has_chip"),
                     ("z", binary_pipeline, "card_on_dark_web"),  # Added missing comma
                     ("r", numerical_pipeline, "amount"),
                     ("s", numerical_pipeline, "credit_limit"),
+                    ("t", date_pipeline, "date"),
+                    ("u", date_pipeline, "expires"),
+                    ("v", date_pipeline, "acct_open_date"),
                 ],
                 remainder="passthrough",
             ),
         ),
         ("Rename_columns", rename_pipeline),
-    ]
+        (
+            "date_hour",
+            DateDecomposer(time_element_to_extract="hour", col_to_decomp="date"),
+        ),
+        (
+            "date_dow",
+            DateDecomposer(time_element_to_extract="dow", col_to_decomp="date"),
+        ),
+        (
+            "date_month",
+            DateDecomposer(time_element_to_extract="month", col_to_decomp="date"),
+        ),
+        (
+            "date_year",
+            DateDecomposer(time_element_to_extract="year", col_to_decomp="date"),
+        ),
+        (
+            "expires_month",
+            DateDecomposer(time_element_to_extract="month", col_to_decomp="expires"),
+        ),
+        (
+            "expires_year",
+            DateDecomposer(time_element_to_extract="year", col_to_decomp="expires"),
+        ),
+        (
+            "acct_open_date_month",
+            DateDecomposer(
+                time_element_to_extract="month", col_to_decomp="acct_open_date"
+            ),
+        ),
+        (
+            "acct_open_date_year",
+            DateDecomposer(
+                time_element_to_extract="year", col_to_decomp="acct_open_date"
+            ),
+        ),
+    ],
 )
 
 
@@ -145,7 +178,7 @@ remove_uncorr_features_pipeline = Pipeline(
 
 ## Target encoder Pipeline
 
-Pipeline_for_exploration = Pipeline(
+Pipeline_for_exploration2 = Pipeline(
     steps=[
         # ("general_transformation_pipeline", general_transformation_pipeline),
         (
@@ -165,6 +198,14 @@ Pipeline_for_exploration = Pipeline(
                     ("o", target_encoder_pipeline, ["errors", "target"]),
                     ("p", target_encoder_pipeline, ["card_number", "target"]),
                     ("q", target_encoder_pipeline, ["cvv", "target"]),
+                    ("t", target_encoder_pipeline, ["date_hour", "target"]),
+                    ("u", target_encoder_pipeline, ["date_dow", "target"]),
+                    ("v", target_encoder_pipeline, ["date_month", "target"]),
+                    ("w", target_encoder_pipeline, ["date_year", "target"]),
+                    ("x", target_encoder_pipeline, ["expires_month", "target"]),
+                    ("y", target_encoder_pipeline, ["expires_year", "target"]),
+                    ("z", target_encoder_pipeline, ["acct_open_date_month", "target"]),
+                    ("za", target_encoder_pipeline, ["acct_open_date_year", "target"]),
                     ("r", numerical_scaling_pipeline, ["amount"]),
                     ("s", numerical_scaling_pipeline, ["credit_limit"]),
                 ],
@@ -187,10 +228,10 @@ drop_target_transformer = FunctionTransformer(drop_target_col, validate=False)
 
 # Pipeline that removes uncorrelated features and can be used in modelling
 
-Pipeline1 = Pipeline(
+Pipeline2 = Pipeline(
     steps=[
         # ("general_transformation_pipeline", general_transformation_pipeline),
-        ("exploration_pipeline", Pipeline_for_exploration),  # Existing pipeline
+        ("exploration_pipeline", Pipeline_for_exploration2),  # Existing pipeline
         ("remove_uncorrelated_features", remove_uncorr_features_pipeline),  # New step
         ("drop_target_transformer", drop_target_transformer),
     ]
