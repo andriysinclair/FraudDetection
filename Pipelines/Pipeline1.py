@@ -72,28 +72,6 @@ def rename_cols(X):
 
 rename_cols_transformer = FunctionTransformer(rename_cols, validate=False)
 
-rename_pipeline = Pipeline(
-    [
-        ("rename_cols", rename_cols_transformer),
-    ]
-)
-
-binary_pipeline = Pipeline(steps=[("Make_target_binary", TargetBinary(type="column"))])
-
-numerical_pipeline = Pipeline(
-    [
-        ("dollar_to_int", DollarToInt()),
-        # ("min_max_scaler", MinMaxScaler())
-    ]
-)
-
-numerical_scaling_pipeline = Pipeline(
-    [
-        # ("dollar_to_int", DollarToInt()),
-        ("min_max_scaler", MinMaxScaler())
-    ]
-)
-
 general_transformation_pipeline = Pipeline(
     steps=[
         ("Return_reduced_df", Target0_Reducer(percentage=0.01)),
@@ -107,39 +85,20 @@ general_transformation_pipeline = Pipeline(
                     ("a", time_series_pipeline, "date"),
                     ("b", time_series_pipeline, "acct_open_date"),
                     ("t", time_series_pipeline, "expires"),
-                    ("g", binary_pipeline, "has_chip"),
-                    ("z", binary_pipeline, "card_on_dark_web"),  # Added missing comma
-                    ("r", numerical_pipeline, "amount"),
-                    ("s", numerical_pipeline, "credit_limit"),
+                    ("g", TargetBinary(type="column"), "has_chip"),
+                    (
+                        "z",
+                        TargetBinary(type="column"),
+                        "card_on_dark_web",
+                    ),  # Added missing comma
+                    ("r", DollarToInt(), "amount"),
+                    ("s", DollarToInt(), "credit_limit"),
                 ],
                 remainder="passthrough",
             ),
         ),
-        ("Rename_columns", rename_pipeline),
+        ("Rename_columns", rename_cols_transformer),
     ]
-)
-
-
-numerical_scaling_pipeline = Pipeline(
-    [
-        # ("dollar_to_int", DollarToInt()),
-        ("min_max_scaler", MinMaxScaler())
-    ]
-)
-
-one_hot_pipeline = Pipeline(
-    [
-        ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
-    ]
-)
-
-target_encoder_pipeline = Pipeline(
-    [("Target_encoder", CustomTargetEncoder(target="target"))]
-)
-
-
-remove_uncorr_features_pipeline = Pipeline(
-    [("Remove_uncorr_features", RemoveUncorrFeatures(p=0.05))]
 )
 
 
@@ -152,46 +111,69 @@ Pipeline_for_exploration = Pipeline(
             "Encoder",
             ColumnTransformer(
                 [
-                    ("d", one_hot_pipeline, ["use_chip"]),
-                    ("e", one_hot_pipeline, ["card_brand"]),
-                    ("f", one_hot_pipeline, ["card_type"]),
-                    ("h", target_encoder_pipeline, ["client_id", "target"]),
-                    ("i", target_encoder_pipeline, ["card_id", "target"]),
-                    ("j", target_encoder_pipeline, ["merchant_id", "target"]),
-                    ("k", target_encoder_pipeline, ["merchant_city", "target"]),
-                    ("l", target_encoder_pipeline, ["merchant_state", "target"]),
-                    ("m", target_encoder_pipeline, ["zip", "target"]),
-                    ("n", target_encoder_pipeline, ["mcc", "target"]),
-                    ("o", target_encoder_pipeline, ["errors", "target"]),
-                    ("p", target_encoder_pipeline, ["card_number", "target"]),
-                    ("q", target_encoder_pipeline, ["cvv", "target"]),
-                    ("r", numerical_scaling_pipeline, ["amount"]),
-                    ("s", numerical_scaling_pipeline, ["credit_limit"]),
+                    (
+                        "d",
+                        OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                        ["use_chip"],
+                    ),
+                    (
+                        "e",
+                        OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                        ["card_brand"],
+                    ),
+                    (
+                        "f",
+                        OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                        ["card_type"],
+                    ),
+                    (
+                        "h",
+                        CustomTargetEncoder(target="target"),
+                        ["client_id", "target"],
+                    ),
+                    ("i", CustomTargetEncoder(target="target"), ["card_id", "target"]),
+                    (
+                        "j",
+                        CustomTargetEncoder(target="target"),
+                        ["merchant_id", "target"],
+                    ),
+                    (
+                        "k",
+                        CustomTargetEncoder(target="target"),
+                        ["merchant_city", "target"],
+                    ),
+                    (
+                        "l",
+                        CustomTargetEncoder(target="target"),
+                        ["merchant_state", "target"],
+                    ),
+                    ("m", CustomTargetEncoder(target="target"), ["zip", "target"]),
+                    ("n", CustomTargetEncoder(target="target"), ["mcc", "target"]),
+                    ("o", CustomTargetEncoder(target="target"), ["errors", "target"]),
+                    (
+                        "p",
+                        CustomTargetEncoder(target="target"),
+                        ["card_number", "target"],
+                    ),
+                    ("q", CustomTargetEncoder(target="target"), ["cvv", "target"]),
+                    ("r", MinMaxScaler(), ["amount"]),
+                    ("s", MinMaxScaler(), ["credit_limit"]),
                 ],
                 remainder="passthrough",
             ),
         ),
-        ("Rename_columns", rename_pipeline),
+        ("Rename_columns", rename_cols_transformer),
     ]
 )
 
 # Function to drop is_fraud column for training set
 
-
-def drop_target_col(X, target="is_fraud"):
-    X = X.drop(columns=target)
-    return X
-
-
-drop_target_transformer = FunctionTransformer(drop_target_col, validate=False)
-
 # Pipeline that removes uncorrelated features and can be used in modelling
 
 Pipeline1 = Pipeline(
     steps=[
-        # ("general_transformation_pipeline", general_transformation_pipeline),
+        ("general_transformation_pipeline", general_transformation_pipeline),
         ("exploration_pipeline", Pipeline_for_exploration),  # Existing pipeline
-        ("remove_uncorrelated_features", remove_uncorr_features_pipeline),  # New step
-        ("drop_target_transformer", drop_target_transformer),
+        ("remove_uncorrelated_features", RemoveUncorrFeatures(p=0.05)),  # New step
     ]
 )
