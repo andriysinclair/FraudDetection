@@ -1,9 +1,33 @@
 import pandas as pd
 import numpy as np
 import random
+import yaml
+from pathlib import Path
+from sklearn.utils import check_random_state
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import FunctionTransformer
+
+# Obtaining Root dir
+
+root = str(Path(__file__).parent.parent)
+
+# Obtaining seed from config.yaml
+
+# Load the config file
+with open(root + "/config.yaml", "r") as file:
+    config = yaml.safe_load(file)
+
+seed = config["global"]["seed"]
+
+# print(f"seed: {seed}")
+
+# Set global seeds for reproducibility
+random.seed(seed)
+np.random.seed(seed)
+
+# Use the seed in scikit-learn
+random_state = check_random_state(seed)
 
 # Functions to use in Pipeline
 
@@ -26,10 +50,12 @@ class TargetBinary(BaseEstimator, TransformerMixin):
             pd.Series: Binary transformed target column.
         """
         if self.type == "df":
+            X = X.copy()
             X["target"] = X["target"].str.lower().map({"yes": 1, "no": 0})
             return X
 
         if self.type == "column":
+            X = X.copy()
             X = X.str.lower().map({"yes": 1, "no": 0}).to_frame()
             return X
 
