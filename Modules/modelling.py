@@ -7,6 +7,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
+import yaml
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, MinMaxScaler
@@ -15,6 +16,18 @@ from sklearn.model_selection import train_test_split
 from sklearn import set_config
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
+
+# Obtaining Root dir
+
+root = str(Path(__file__).parent.parent)
+
+# Obtaining seed from config.yaml
+
+# Load the config file
+with open(root + "/config.yaml", "r") as file:
+    config = yaml.safe_load(file)
+
+seed = config["global"]["seed"]
 
 
 class MLearner:
@@ -37,10 +50,7 @@ class MLearner:
     def fit(self):
         # Test Train Split
 
-        X_train, X_test = train_test_split(self.dataset)
-
-        logging.debug(f"X_train indices: {X_train.index}")
-        logging.debug(f"X_test indices: {X_test.index}")
+        X_train, X_test = train_test_split(self.dataset, random_state=seed)
 
         # Applying Pipeline1
 

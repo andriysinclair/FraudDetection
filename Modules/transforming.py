@@ -141,7 +141,7 @@ class DateDecomposer:
 
 
 class Target0_Reducer(BaseEstimator, TransformerMixin):
-    def __init__(self, percentage=0.01, balanced=False):
+    def __init__(self, percentage=0.01, balanced=False, random_state=seed):
         """
         Args:
             percentage (float): percentage of 0 responses to keep
@@ -151,6 +151,7 @@ class Target0_Reducer(BaseEstimator, TransformerMixin):
 
         self.percentage = percentage
         self.balanced = balanced
+        self.random_state = random_state
 
     def fit(self, X, y=None):
         return self
@@ -176,6 +177,8 @@ class Target0_Reducer(BaseEstimator, TransformerMixin):
                 f"The 'target' column contains invalid values: {unique_values - {'Yes', 'No'}}. "
                 "It should only contain 'Yes' and 'No'."
             )
+
+        random.seed(self.random_state)
 
         # Find all No responses for fraud
         X_0 = X[X["target"] == "No"]
@@ -215,7 +218,9 @@ class Target0_Reducer(BaseEstimator, TransformerMixin):
             combined = pd.concat([X_0_reduced, X_1], axis=0).reset_index(drop=True)
 
             # Shuffle the combined DataFrame
-            shuffled = combined.sample(frac=1, random_state=42).reset_index(drop=True)
+            shuffled = combined.sample(
+                frac=1, random_state=self.random_state
+            ).reset_index(drop=True)
 
             return shuffled
 

@@ -38,6 +38,18 @@ from Modules.preprocessing import (
 from Modules.plotting import Plotter
 from Modules.transforming import *
 
+# Obtaining Root dir
+
+root = str(Path(__file__).parent.parent)
+
+# Obtaining seed from config.yaml
+
+# Load the config file
+with open(root + "/config.yaml", "r") as file:
+    config = yaml.safe_load(file)
+
+seed = config["global"]["seed"]
+
 ### Auxillary Functions to use in Pipelines
 
 # Define the fillna transformer
