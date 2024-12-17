@@ -9,6 +9,7 @@ dependencies:
   - matplotlib
   - numpy
   - scikit-learn
+  - lightgbm
   - pip:
       - kaggle
       - ipykernel
