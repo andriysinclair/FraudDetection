@@ -54,7 +54,7 @@ def copy_target_column(X):
 target_copy_transformer = FunctionTransformer(copy_target_column, validate=False)
 
 time_series_pipeline = Pipeline(
-    steps=[("Convert_to_dt", Date()), ("ts_mapping", TimeSeriesMapper())]
+    steps=[("Convert_to_dt", Date(format="mixed")), ("ts_mapping", TimeSeriesMapper())]
 )
 
 # Function to rename columns
@@ -180,9 +180,9 @@ general_transformation_pipeline2 = Pipeline(
                     ),  # Added missing comma
                     ("r", DollarToInt(), "amount"),
                     ("s", DollarToInt(), "credit_limit"),
-                    ("t", Date(), "date"),
-                    ("u", Date(), "expires"),
-                    ("v", Date(), "acct_open_date"),
+                    ("t", Date(format="%Y-%m-%d %H:%M:%S"), "date"),
+                    ("u", Date(format="%m/%Y"), "expires"),
+                    ("v", Date(format="%m/%Y"), "acct_open_date"),
                 ],
                 remainder="passthrough",
             ),
@@ -345,9 +345,9 @@ general_transformation_pipeline3 = Pipeline(
                     ),  # Added missing comma
                     ("r", DollarToInt(), "amount"),
                     ("s", DollarToInt(), "credit_limit"),
-                    ("t", Date(), "date"),
-                    ("u", Date(), "expires"),
-                    ("v", Date(), "acct_open_date"),
+                    ("t", Date(format="%Y-%m-%d %H:%M:%S"), "date"),
+                    ("u", Date(format="%m/%Y"), "expires"),
+                    ("v", Date(format="%m/%Y"), "acct_open_date"),
                 ],
                 remainder="passthrough",
             ),

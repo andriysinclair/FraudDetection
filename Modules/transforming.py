@@ -33,7 +33,18 @@ random_state = check_random_state(seed)
 
 
 class TargetBinary(BaseEstimator, TransformerMixin):
+    """TargetBinary
+
+    Converts feature with 'Yes', 'No' into 1,0.
+
+    """
+
     def __init__(self, type):
+        """__init__
+
+        Args:
+            type (str): tales input 'df' or 'column' depending on item you desire to trasnform
+        """
         self.type = type
 
     def fit(self, X, y=None):
@@ -54,13 +65,30 @@ class TargetBinary(BaseEstimator, TransformerMixin):
             X["target"] = X["target"].str.lower().map({"yes": 1, "no": 0})
             return X
 
-        if self.type == "column":
+        elif self.type == "column":
             X = X.copy()
             X = X.str.lower().map({"yes": 1, "no": 0}).to_frame()
             return X
 
+        else:
+            TypeError("Only accepts inputs of type 'column' or 'df'")
+
 
 class Date(BaseEstimator, TransformerMixin):
+    """Date
+
+    Converts object to datetime64[ns]
+
+    """
+
+    def __init__(self, format="mixed"):
+        """
+        Args:
+            format (str): Define the format of date elements, default to mixed
+        """
+
+        self.format = format
+
     def fit(self, X, y=None):
         return self
 
@@ -73,10 +101,10 @@ class Date(BaseEstimator, TransformerMixin):
             X (pd.Series): Contains dates
 
         Returns:
-            dict: A dictionary of date column decomposed into components
+            pd.Series: Converted column of datetime64[ns]
         """
 
-        return pd.to_datetime(X).to_frame()
+        return pd.to_datetime(X, format=self.format).to_frame()
 
 
 class DateDecomposer:
@@ -113,7 +141,7 @@ class DateDecomposer:
 
 
 class Target0_Reducer(BaseEstimator, TransformerMixin):
-    def __init__(self, percentage):
+    def __init__(self, percentage=0.01, balanced=False):
         """
         Args:
             percentage (float): percentage of 0 responses to keep
@@ -122,6 +150,7 @@ class Target0_Reducer(BaseEstimator, TransformerMixin):
             raise ValueError("Percentage must be between 0 and 1")
 
         self.percentage = percentage
+        self.balanced = balanced
 
     def fit(self, X, y=None):
         return self
@@ -154,15 +183,41 @@ class Target0_Reducer(BaseEstimator, TransformerMixin):
         # Obtain their indices
         X_0_index = list(X_0.index)
 
-        # Randomly select x% of indices
-        num_to_select = int(len(X_0) * self.percentage)
-        selected_indices = random.sample(X_0_index, num_to_select)
+        if not self.balanced:
 
-        X_0_reduced = X_0.loc[selected_indices]
+            # Randomly select x% of indices
+            num_to_select = int(len(X_0) * self.percentage)
+            selected_indices = random.sample(X_0_index, num_to_select)
 
-        X_1 = X[X["target"] != "No"]
+            X_0_reduced = X_0.loc[selected_indices]
 
-        return pd.concat([X_0_reduced, X_1], axis=0).reset_index(drop=True)
+            X_1 = X[X["target"] != "No"]
+
+            combined = pd.concat([X_0_reduced, X_1], axis=0).reset_index(drop=True)
+
+            # Shuffle the combined DataFrame
+            shuffled = combined.sample(frac=1, random_state=42).reset_index(drop=True)
+
+            return shuffled
+
+        # If balanced df required
+
+        else:
+
+            X_1 = X[X["target"] != "No"]
+
+            # Randomly select equal number of nos
+            num_to_select = int(len(X_1))
+            selected_indices = random.sample(X_0_index, num_to_select)
+
+            X_0_reduced = X_0.loc[selected_indices]
+
+            combined = pd.concat([X_0_reduced, X_1], axis=0).reset_index(drop=True)
+
+            # Shuffle the combined DataFrame
+            shuffled = combined.sample(frac=1, random_state=42).reset_index(drop=True)
+
+            return shuffled
 
 
 class CustomTargetEncoder(BaseEstimator, TransformerMixin):
