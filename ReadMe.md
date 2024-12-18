@@ -38,7 +38,7 @@ To set up the environment and dependencies:
 
 3. Install the package
    ```bash
-   pip install -e
+   pip install -e .
 
 4. Download the dataset
    ```bash
