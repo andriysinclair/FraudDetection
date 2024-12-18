@@ -31,10 +31,23 @@ seed = config["global"]["seed"]
 
 
 class MLearner:
+    """
+
+    Class to streamline pipeline transformation, hyperparameter tuning, training, testing and CV
+    """
 
     def __init__(
         self, dataset, transformation_pipeline, params, estimator, scoring="f1", cv=5
     ):
+        """
+        Args:
+            dataset (pd.DataFrame): raw untrnasformed (but merged) dataframe.
+            transformation_pipeline (sklearn.pipeline.Pipeline): Transformation Pipeline from Pipelines.py
+            params (dict): Params to GridSearch over - if single params are given - this class defaults to regular training and testing with CV
+            estimator (sklearn.base.BaseEstimator): sklearn estimator to use
+            scoring (str, optional): evaluation metric. Defaults to "f1".
+            cv (int, optional): cross-validation sets. Defaults to 5.
+        """
         self.dataset = dataset
         self.transformation_pipeline = transformation_pipeline
         self.params = params
@@ -48,6 +61,10 @@ class MLearner:
         self.grid_searcher = None
 
     def fit(self):
+        """fit
+
+        Fits to training data
+        """
         # Test Train Split
 
         X_train, X_test = train_test_split(self.dataset, random_state=seed)
@@ -94,6 +111,10 @@ class MLearner:
         print(f"Best parameters found: {grid_searcher.best_params_}")
 
     def predict(self):
+        """predict
+
+        Prints score of estimator (with best parameters) on the training set and the testing set.
+        """
         print(
             f"score on training set: {self.grid_searcher.score(self.X_train, self.y_train)}"
         )

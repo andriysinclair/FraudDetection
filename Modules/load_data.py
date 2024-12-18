@@ -9,6 +9,14 @@ import pandas as pd
 
 
 def load_data(dataset, data_folder):
+    """load_data
+
+    Downloads dataset through kaggle API
+
+    Args:
+        dataset (str): link to dataset given by <kaggle username>/<dataset>
+        data_folder (str): Path to data folder
+    """
 
     # Automatically looks for the kaggle.json file and authenticates user
     kaggle.api.authenticate()
@@ -23,8 +31,8 @@ def merge_dfs(transaction_data_csv, cards_data_csv, data_folder):
     Merges card data with transaction data and export to pickle in the data folder
 
     Args:
-        transaction_data_df (pandas.DataFrame): Dataframe for transaction data
-        cards_data_df (pandas.DataFrame): Dataframe for card data
+        transaction_data_csv (str): path to transaction_data.csv
+        cards_data_csv (str): path to cards_data.csv
         data_folder (str): Absolute path to data folder
     """
     # Turning CSV into pandas df
