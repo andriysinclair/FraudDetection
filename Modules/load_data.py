@@ -17,7 +17,7 @@ def load_data(dataset, data_folder):
     kaggle.api.dataset_download_files(dataset, path=data_folder, unzip=True)
 
 
-def merge_dfs(transaction_data_df, cards_data_df, data_folder):
+def merge_dfs(transaction_data_csv, cards_data_csv, data_folder):
     """merge_dfs
 
     Merges card data with transaction data and export to pickle in the data folder
@@ -27,6 +27,10 @@ def merge_dfs(transaction_data_df, cards_data_df, data_folder):
         cards_data_df (pandas.DataFrame): Dataframe for card data
         data_folder (str): Absolute path to data folder
     """
+    # Turning CSV into pandas df
+
+    transaction_data_df = pd.read_csv(transaction_data_csv)
+    cards_data_df = pd.read_csv(cards_data_csv)
 
     # Load in the fraud jsons
     with open(data_folder + "/train_fraud_labels.json", "r") as file:
@@ -75,4 +79,4 @@ def merge_dfs(transaction_data_df, cards_data_df, data_folder):
     # merged_df["mcc"] = merged_df["mcc"].map(mcc_data)
 
     # Saving merged_df to pickle
-    merged_df.to_pickle(DATA_FOLDER + "/merged_data.pkl")
+    merged_df.to_pickle(data_folder + "/merged_data.pkl")
