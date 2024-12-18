@@ -13,5 +13,8 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.package-data]
 "FraudDetection" = ["data/*"]
 
+[tool.setuptools.packages]
+find = { include = ["Modules"] }
+
 [project.scripts]
 frauddetection = "cli:main"
