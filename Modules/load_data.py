@@ -6,21 +6,9 @@ import kaggle
 from pathlib import Path
 import json
 import pandas as pd
-import argparse
-
-# URL for the dataset given by "username/data_set_name"
-DATASET = "computingvictor/transactions-fraud-datasets"
-
-# Absolute path to data folder
-DATA_FOLDER = Path(__file__).parent.parent / "data"
-
-# Obtaining absolute paths to relevant datasets
-
-cards_data = DATA_FOLDER + "/cards_data.csv"
-transaction_data = DATA_FOLDER + "/transactions_data.csv"
 
 
-def load_data(dataset=DATASET, data_folder=DATA_FOLDER):
+def load_data(dataset, data_folder):
 
     # Automatically looks for the kaggle.json file and authenticates user
     kaggle.api.authenticate()
@@ -88,6 +76,3 @@ def merge_dfs(transaction_data_df, cards_data_df, data_folder):
 
     # Saving merged_df to pickle
     merged_df.to_pickle(DATA_FOLDER + "/merged_data.pkl")
-
-
-# def main()

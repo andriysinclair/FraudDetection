@@ -1,0 +1,11 @@
+[project]
+name = "FraudDetection"
+version = "0.1.0"
+description = "Using GLMs and LGBMs to detect fraudulent transactions"
+license = { text = "MIT" }
+readme = "ReadDMe.md"
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
