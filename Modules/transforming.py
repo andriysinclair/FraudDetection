@@ -342,6 +342,15 @@ class DollarToInt(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        """
+
+        Args:
+            X (pd.Series): Column with units in dolars
+
+        Returns:
+            pd.Series: column trasnsformed into int
+
+        """
         X = X.apply(
             lambda x: (
                 int(float(x[1:])) if isinstance(x, str) and x.startswith("$") else x
@@ -352,10 +361,24 @@ class DollarToInt(BaseEstimator, TransformerMixin):
 
 
 class TimeSeriesMapper:
+    """
+
+    Class that changes date-like column into ordered time series
+    """
+
     def fit(self, X, y=None):
         return self
 
     def transform(self, X, y=None):
+        """
+        Args:
+            X (pd.Series): date-like column
+            y (_type_, optional): _description_. Defaults to None.
+
+        Returns:
+            pd.DataFrame: column ordered by time 1,..,T
+        """
+
         # X must be a date time
         X = pd.Series(X.iloc[:, 0])
         date_values = list(X.sort_values().values)
@@ -365,12 +388,29 @@ class TimeSeriesMapper:
 
 
 class RemoveUncorrFeatures:
+    """
+    Class to remove features with insignificant correlation with target variable
+    """
+
     def __init__(self, p, target="is_fraud"):
+        """
+        Args:
+            p (int): minimum correlation with target
+            target (str, optional): Target column. Defaults to "is_fraud".
+        """
+
         self.mapping = None
         self.p = p
         self.target = target
 
     def fit(self, X, y=None):
+        """
+        Args:
+            X (pd.Series): Dataframe from which to remove uncorrelated features
+
+        Returns:
+            mapping: Mapping of sufficiently correlated features, based on training set
+        """
 
         ## Function to remove features with less than X correlation
         suitable_cols = X.corr()[self.target][
@@ -383,6 +423,17 @@ class RemoveUncorrFeatures:
         return self
 
     def transform(self, X, y=None):
+        """
+        Args:
+            X (pd.DataFrame): Dataframe from which to remove uncorrelated features
+
+        Raises:
+            ValueError: If mapping has not been fitted
+
+        Returns:
+            pd.DataFrame: DataFrame with uncorrelated features removed
+        """
+
         # Check if encoder has been fitted
         if self.mapping is None:
             raise ValueError("The encoder has not been fitted yet.")
