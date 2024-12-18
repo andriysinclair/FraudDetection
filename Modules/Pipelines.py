@@ -38,6 +38,18 @@ from Modules.preprocessing import (
 from Modules.plotting import Plotter
 from Modules.transforming import *
 
+# Obtaining Root dir
+
+root = str(Path(__file__).parent.parent)
+
+# Obtaining seed from config.yaml
+
+# Load the config file
+with open(root + "/config.yaml", "r") as file:
+    config = yaml.safe_load(file)
+
+seed = config["global"]["seed"]
+
 ### Auxillary Functions to use in Pipelines
 
 # Define the fillna transformer
@@ -46,12 +58,26 @@ fillna_transformer = FunctionTransformer(lambda X: X.fillna(0))
 
 # Define a function to copy the target column
 def copy_target_column(X):
+    """copy_target_column
+
+    Adds a new target column called 'is_fraud' as transformers remove original target column
+
+    Args:
+        X (pd.DataFrame): merged df
+
+    Returns:
+        pd.DataFrame: original dataframe with 'is_fraud' column.
+    """
     X = X.copy()  # Ensure no modification to the original DataFrame
     X["is_fraud"] = X["target"]
     return X
 
 
+# Creates function transformer
+
 target_copy_transformer = FunctionTransformer(copy_target_column, validate=False)
+
+# Pipeline that converts date-like features into datetime objects and creates ordered time series for them
 
 time_series_pipeline = Pipeline(
     steps=[("Convert_to_dt", Date(format="mixed")), ("ts_mapping", TimeSeriesMapper())]
@@ -61,15 +87,29 @@ time_series_pipeline = Pipeline(
 
 
 def rename_cols(X):
+    """rename_cols
+
+    Renames columns after column transformations
+
+    Args:
+        X (pd.DataFrame): Dataframe after column transformations
+
+    Returns:
+        pd.DateFrame: Dataframe with renamed columns
+    """
     X = X.copy()
     new_col_names = [col.split("__")[1] for col in list(X.columns)]
     X.columns = new_col_names
     return X
 
 
+# Making into transformer
+
 rename_cols_transformer = FunctionTransformer(rename_cols, validate=False)
 
 ## Auxillary Pipelines to use in Pipelines ###
+
+# General transformation pipeline
 
 general_transformation_pipeline1 = Pipeline(
     steps=[
@@ -99,6 +139,9 @@ general_transformation_pipeline1 = Pipeline(
         ("Rename_columns", rename_cols_transformer),
     ]
 )
+
+# Pipeline for exploration
+# Adds encoding and scaling transformers
 
 Pipeline_for_exploration1 = Pipeline(
     steps=[
@@ -227,7 +270,6 @@ general_transformation_pipeline2 = Pipeline(
     ],
 )
 
-## Target encoder Pipeline
 
 Pipeline_for_exploration2 = Pipeline(
     steps=[
@@ -495,6 +537,10 @@ Pipeline_for_exploration3 = Pipeline(
 
 # Final Pipelines
 
+## Pipeline1
+# Timeseries format for date-like features
+# 1% of non-fradulent samples used
+
 Pipeline1 = Pipeline(
     steps=[
         ("general_transformation_pipeline", general_transformation_pipeline1),
@@ -503,6 +549,10 @@ Pipeline1 = Pipeline(
     ]
 )
 
+## Pipeline2
+# Granular decomp of date-like features. Target encoded.
+# 1% of non-fradulent samples used
+
 Pipeline2 = Pipeline(
     steps=[
         ("general_transformation_pipeline", general_transformation_pipeline2),
@@ -510,6 +560,10 @@ Pipeline2 = Pipeline(
         ("remove_uncorrelated_features", RemoveUncorrFeatures(p=0.05)),  # New step
     ]
 )
+
+## Pipeline3
+# Granular decomp of date-like features. Target encoded.
+# Allows varied proportion of non-fraudulent samples to be used.
 
 Pipeline3 = Pipeline(
     steps=[

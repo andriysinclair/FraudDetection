@@ -1,4 +1,4 @@
-name: FODS_coursework
+name: FraudDetection
 channels:
   - conda-forge
   - defaults
@@ -10,6 +10,7 @@ dependencies:
   - numpy
   - scikit-learn
   - lightgbm
+  - seaborn
   - pip:
       - kaggle
       - ipykernel
