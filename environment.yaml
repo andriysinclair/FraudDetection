@@ -17,3 +17,5 @@ dependencies:
       - ipykernel
       - pre-commit
       - pytest
+      - dalex
+      - kaleido

@@ -1,2 +1,11 @@
 global:
   seed: 42
+
+best_model:
+  best_pipeline: "Pipeline3"
+  best_algo: "LGBMClassifier"
+  best_params:
+    learning_rate: 0.1
+    min_child_weight: 0.001
+    n_estimators: 1000
+    num_leaves: 31

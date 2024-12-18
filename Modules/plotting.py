@@ -71,7 +71,15 @@ class Plotter:
         plt.show()
 
     def bar_plot(
-        self, feature_of_interest, top_n, Plots_folder, file_name, target="is_fraud"
+        self,
+        feature_of_interest,
+        top_n,
+        Plots_folder,
+        file_name,
+        target="is_fraud",
+        title=None,
+        xlabel=None,
+        ylabel=None,
     ):
         """bar_plot
 
@@ -97,9 +105,11 @@ class Plotter:
         # Create bar plot
         plt.figure(figsize=(12, 6))
         plt.bar(x, y)
-        plt.title(f"Most fraudulent transactions by {feature_of_interest}")
-        plt.xlabel(f"{feature_of_interest}")
-        plt.ylabel("Count")
+        plt.title(
+            title if title else f"Most fraudulent transactions by {feature_of_interest}"
+        )
+        plt.xlabel(xlabel if xlabel else f"{feature_of_interest}")
+        plt.ylabel(ylabel if ylabel else "Count")
         plt.xticks(rotation=90)  # Rotate x-ticks
         plt.tight_layout()
         plt.savefig(Plots_folder + "/" + file_name + ".pdf", format="pdf")

@@ -39,13 +39,14 @@ class TargetBinary(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(self, type):
+    def __init__(self, type, target="target"):
         """__init__
 
         Args:
             type (str): tales input 'df' or 'column' depending on item you desire to transform
         """
         self.type = type
+        self.target = target
 
     def fit(self, X, y=None):
         return self
@@ -61,13 +62,27 @@ class TargetBinary(BaseEstimator, TransformerMixin):
             pd.Series: Binary transformed target column.
         """
         if self.type == "df":
+
             X = X.copy()
-            X["target"] = X["target"].str.lower().map({"yes": 1, "no": 0})
+
+            # Make all values lower case
+            X[self.target] = X[self.target].str.lower()
+
+            # Drop all rows that are not Yes or No
+            X = X[X[self.target].isin(["yes", "no"])]
+
+            X[self.target] = X[self.target].map({"yes": 1, "no": 0})
+
             return X
 
         elif self.type == "column":
             X = X.copy()
-            X = X.str.lower().map({"yes": 1, "no": 0}).to_frame()
+
+            X = X.str.lower()
+
+            X = X[X.isin(["yes", "no"])]
+
+            X = X.map({"yes": 1, "no": 0}).to_frame()
             return X
 
         else:
