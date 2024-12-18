@@ -22,7 +22,7 @@ from Modules.transforming import Target0_Reducer
 DATASET = "computingvictor/transactions-fraud-datasets"
 
 # Absolute path to data folder
-DATA_FOLDER = str(Path(__file__).parent) + "/data"
+DATA_FOLDER = root + "/data"
 
 # Obtaining absolute paths to relevant datasets
 cards_data_csv = DATA_FOLDER + "/cards_data.csv"
