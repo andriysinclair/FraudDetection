@@ -31,7 +31,6 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from Modules.load_data import load_data
 from Modules.preprocessing import (
     missing_summary,
-    merge_dfs,
     dollar_to_int,
     find_unique_values,
 )

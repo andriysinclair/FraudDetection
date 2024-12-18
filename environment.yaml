@@ -15,3 +15,4 @@ dependencies:
       - kaggle
       - ipykernel
       - pre-commit
+      - pytest
