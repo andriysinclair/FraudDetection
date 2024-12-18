@@ -16,6 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import set_config
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_validate
 
 # Obtaining Root dir
 
@@ -37,7 +38,15 @@ class MLearner:
     """
 
     def __init__(
-        self, dataset, transformation_pipeline, params, estimator, scoring="f1", cv=5
+        self,
+        dataset,
+        transformation_pipeline,
+        params,
+        estimator,
+        scoring="f1",
+        cv=5,
+        HPT=True,
+        target_col="is_fraud",
     ):
         """
         Args:
@@ -54,6 +63,7 @@ class MLearner:
         self.estimator = estimator
         self.scoring = scoring
         self.cv = cv
+        self.target_col = target_col
         self.X_train = None
         self.X_test = None
         self.y_train = None
@@ -65,6 +75,7 @@ class MLearner:
 
         Fits to training data
         """
+
         # Test Train Split
 
         X_train, X_test = train_test_split(self.dataset, random_state=seed)
@@ -76,16 +87,16 @@ class MLearner:
 
         # Obtaining target column
 
-        y_train = X_train["is_fraud"]
-        y_test = X_test["is_fraud"]
+        y_train = X_train[self.target_col]
+        y_test = X_test[self.target_col]
 
         self.y_train = y_train
         self.y_test = y_test
 
         # Dropping is fraud column
 
-        X_train = X_train.drop(columns=["is_fraud"])
-        X_test = X_test.drop(columns=["is_fraud"])
+        X_train = X_train.drop(columns=[self.target_col])
+        X_test = X_test.drop(columns=[self.target_col])
 
         self.X_train = X_train
         self.X_test = X_test
@@ -109,6 +120,8 @@ class MLearner:
 
         # Print the best parameters
         print(f"Best parameters found: {grid_searcher.best_params_}")
+
+        # This class can be used as
 
     def predict(self):
         """predict

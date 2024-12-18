@@ -1,3 +1,6 @@
+# Ignore all files in the data/ directory
 data/*
-!data/.gitkeep
+# Unignore balanced_data.pkl in the data/ directory
+!data/balanced_data.pkl
+
 .pre-commit-cache/
