@@ -6,6 +6,15 @@ import pandas as pd
 import argparse
 import os
 import yaml
+import sys
+
+# Obtaining Root dir
+root = str(Path(__file__).parent.parent)
+print(root)
+
+# Add root to the Python path
+sys.path.append(root)
+
 from Modules.load_data import load_data, merge_dfs
 from Modules.transforming import Target0_Reducer
 
@@ -16,7 +25,6 @@ DATASET = "computingvictor/transactions-fraud-datasets"
 DATA_FOLDER = str(Path(__file__).parent) + "/data"
 
 # Obtaining absolute paths to relevant datasets
-
 cards_data_csv = DATA_FOLDER + "/cards_data.csv"
 transaction_data_csv = DATA_FOLDER + "/transactions_data.csv"
 
@@ -25,11 +33,6 @@ transaction_data_csv = DATA_FOLDER + "/transactions_data.csv"
 transformer = Target0_Reducer(balanced=True)
 
 # Obtaining global seed
-
-# Obtaining Root dir
-
-root = str(Path(__file__).parent)
-# print(root)
 
 # Load the config file
 with open(root + "/config.yaml", "r") as file:

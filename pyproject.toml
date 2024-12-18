@@ -17,4 +17,4 @@ build-backend = "setuptools.build_meta"
 find = { include = ["Modules"] }
 
 [project.scripts]
-frauddetection = "cli:main"
+frauddetection = "Modules.cli:main"
