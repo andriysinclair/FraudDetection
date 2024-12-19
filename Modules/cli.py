@@ -90,7 +90,7 @@ def main():
             print(
                 "/data is not empty. Either data has already been installed or you need to clear the contents of the folder and try again"
             )
-            print("Please do not remove the .gitkeep file.")
+
             print("Displaying items inside /data...\n")
 
             for items in os.listdir(DATA_FOLDER):

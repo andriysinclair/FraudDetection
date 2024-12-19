@@ -40,9 +40,25 @@ To set up the environment and dependencies:
    ```bash
    pip install -e .
 
-4. Download the dataset
-   ```bash
-   fraudetection --install
+4. Load the dataset
+   - To download the individual files from Kaggle:
+     ```bash
+     frauddetection --download
+     ```
+
+   - To merge the cards and transactions files:
+     **WARNING:** These are large datasets and will most likely require a computing cluster to compute.
+     Requires individual csv's to exist in datafolder.
+     ```bash
+     frauddetection --merge
+     ```
+
+   - To return a reduced and balanced data frame where the number of fraudulent transactions equals the number of non-fraudulent transactions:
+     This dataset is of a workable size and is included in the installation.
+     Requires `merged_data.pkl` to exist in data folder.
+     ```bash
+     frauddetection --reduce
+     ```
 
 ---
 
