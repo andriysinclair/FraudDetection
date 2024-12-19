@@ -228,7 +228,7 @@ class MLearner:
                     label=f"PDP for {variable}",
                 )
                 plt.title(f"Partial Dependence Plot for {variable}")
-                plt.xlabel(variable)
+                plt.xlabel(variable + " ($)")
                 plt.ylabel("Predicted Outcome")
                 plt.legend()
                 plt.grid(True)
