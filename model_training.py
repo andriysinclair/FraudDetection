@@ -36,7 +36,9 @@ from Modules.Pipelines import Pipeline1, Pipeline2, Pipeline3
 
 # Obtaining Root dir
 
-root = str(Path.cwd())
+# Obtaining Root dir
+root = str(Path(__file__).parent)
+print(root)
 
 # Obtaining seed from config.yaml
 
@@ -57,7 +59,7 @@ random_state = check_random_state(seed)
 
 # Obtaining absolute path to data folder
 
-data_folder = str(Path(os.getcwd()) / "data")
+data_folder = root + "/data"
 
 # Loading the balanced data from pickle
 
