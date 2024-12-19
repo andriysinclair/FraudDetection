@@ -29,7 +29,7 @@ To set up the environment and dependencies:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/andriysinclair/FraudDetection
+   git clone https://github.com/<username>/FraudDetection
    cd FraudDetection
    ```
 
