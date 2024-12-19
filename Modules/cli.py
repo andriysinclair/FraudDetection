@@ -84,7 +84,6 @@ def main():
                 print(items)
 
             print("")
-            print("Now merging datasets...\n")
 
         else:
             print(
