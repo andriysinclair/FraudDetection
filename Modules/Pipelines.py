@@ -1,8 +1,3 @@
-"""
-Pipeline1 will be based on making time series from 0,...T of date features. Consequently this has little correlation
-with the target an ends up being removed
-"""
-
 # LIbraries
 
 # importing external libraries
